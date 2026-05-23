@@ -11,7 +11,7 @@ SAVE_FILE = "blog_data.json"
 # ============================================================
 
 st.set_page_config(
-    page_title="个人学习感悟随笔",
+    page_title="个人学习生活感悟随笔",
     layout="wide",
     initial_sidebar_state="auto"
 )
@@ -77,17 +77,17 @@ init_data()
 articles = load_data()
 
 # ===================== 页面头部 =====================
-st.title("📖 个人学习感悟随笔")
-st.caption("记录成长 · 沉淀思考 · 全局云端同步")
+st.title("📖 个人学习生活感悟随笔")
+st.caption("记录回忆成长 · 留下沉淀思考 · 手机电脑同步")
 st.divider()
 
 # ===================== 侧边栏 =====================
 with st.sidebar:
-    st.header("🔐 管理员中心")
+    st.header("🔐 记录发布中心")
 
     if not st.session_state.is_admin:
-        pwd = st.text_input("请输入管理密码", type="password")
-        if st.button("登录管理", use_container_width=True):
+        pwd = st.text_input("请输入登录密码", type="password")
+        if st.button("欢迎登录", use_container_width=True):
             if pwd == ADMIN_PWD:
                 st.session_state.is_admin = True
                 st.success("✅ 登录成功")
