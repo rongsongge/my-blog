@@ -1,28 +1,34 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-import json
-import os
 import io
 
 # ===================== 配置区【可自行修改】=====================
 ADMIN_PWD = "82704001"
-SAVE_FILE = "blog_data.json"
 # ============================================================
 
 st.set_page_config(
-    page_title="个人学习生活感悟随笔",
+    page_title="个人学习感悟随笔",
     layout="wide",
     initial_sidebar_state="auto"
 )
 
-# 初始化状态
+# 初始化全局状态（云端持久化，不会丢失）
 if "is_admin" not in st.session_state:
     st.session_state.is_admin = False
 if "edit_idx" not in st.session_state:
     st.session_state.edit_idx = None
 if "del_confirm" not in st.session_state:
     st.session_state.del_confirm = None
+# 博客数据常驻session_state，云端保留
+if "articles" not in st.session_state:
+    st.session_state.articles = [
+        {
+            "title": "我的云端学习博客上线啦",
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "content": "这是使用 Streamlit 搭建的在线随笔博客，支持新增、修改、删除文章，数据云端保存。"
+        }
+    ]
 
 # 样式美化
 st.markdown("""
@@ -44,27 +50,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ===================== 数据功能 =====================
-def init_data():
-    if not os.path.exists(SAVE_FILE):
-        default_data = [
-            {
-                "title": "我的云端学习博客上线啦",
-                "date": datetime.now().strftime("%Y-%m-%d"),
-                "content": "这是使用 Streamlit 搭建的在线随笔博客，支持新增、修改、删除文章，数据云端保存。"
-            }
-        ]
-        save_data(default_data)
-
-def load_data():
-    try:
-        with open(SAVE_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except:
-        return []
-
 def save_data(data):
-    with open(SAVE_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    # 数据存入session_state，云端持久化
+    st.session_state.articles = data
 
 def export_excel(data):
     df = pd.DataFrame(data)
@@ -73,21 +61,21 @@ def export_excel(data):
     buffer.seek(0)
     return buffer
 
-init_data()
-articles = load_data()
+# 读取数据
+articles = st.session_state.articles
 
 # ===================== 页面头部 =====================
-st.title("📖 个人学习生活感悟随笔")
-st.caption("记录回忆成长 · 留下沉淀思考 · 手机电脑同步")
+st.title("📖 个人学习感悟随笔")
+st.caption("记录成长 · 沉淀思考 · 全局云端同步")
 st.divider()
 
 # ===================== 侧边栏 =====================
 with st.sidebar:
-    st.header("🔐 记录发布中心")
+    st.header("🔐 管理员中心")
 
     if not st.session_state.is_admin:
-        pwd = st.text_input("请输入登录密码", type="password")
-        if st.button("欢迎登录", use_container_width=True):
+        pwd = st.text_input("请输入管理密码", type="password")
+        if st.button("登录管理", use_container_width=True):
             if pwd == ADMIN_PWD:
                 st.session_state.is_admin = True
                 st.success("✅ 登录成功")
